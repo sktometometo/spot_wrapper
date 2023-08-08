@@ -293,7 +293,7 @@ class SpotGraphNav:
             f"Got robot state in kinematic odometry frame: \n{str(odom_tform_body)}"
         )
 
-    def set_initial_localization_fiducial(self, *args):
+    def set_initial_localization_fiducial(self) -> None:
         """Trigger localization when near a fiducial."""
         robot_state = self._robot_state_client.get_robot_state()
         current_odom_tform_body = get_odom_tform_body(
