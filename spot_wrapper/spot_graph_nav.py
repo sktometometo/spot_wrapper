@@ -1,4 +1,3 @@
-from ctypes import Union
 import logging
 import math
 import os
