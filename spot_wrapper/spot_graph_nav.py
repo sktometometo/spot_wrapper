@@ -1,3 +1,4 @@
+from ctypes import Union
 import logging
 import math
 import os
@@ -307,22 +308,35 @@ class SpotGraphNav:
             ko_tform_body=current_odom_tform_body,
         )
 
-    def set_initial_localization_waypoint(self, *args):
-        """Trigger localization to a waypoint."""
+    def set_initial_localization_waypoint(
+        self, waypoint_id: typing.Union[str, list]
+    ) -> typing.Tuple[bool, str]:
+        """Trigger localization to a waypoint.
+
+        Argument:
+            waypoint_id (str or list or tuple): Target waypoint id to which the robot is localized.
+
+        Return:
+            flag (bool) : success flag
+            message (str) : message string"""
         # Take the first argument as the localization waypoint.
-        if len(args) < 1:
-            # If no waypoint id is given as input, then return without initializing.
-            self._logger.error("No waypoint specified to initialize to.")
-            return
+        if isinstance(waypoint_id, (list, tuple)):
+            if len(waypoint_id) < 1:
+                # If no waypoint id is given as input, then return without initializing.
+                self._logger.error("No waypoint specified to initialize to.")
+                return False, "No waypoint specified to initialize to."
+            target_waypoint_id = waypoint_id[0]
+        else:
+            target_waypoint_id = waypoint_id
         destination_waypoint = self._find_unique_waypoint_id(
-            args[0][0],
+            target_waypoint_id,
             self._current_graph,
             self._current_annotation_name_to_wp_id,
             self._logger,
         )
         if not destination_waypoint:
             self._logger.error("Failed to find waypoint id.")
-            return
+            return False, "Failed to find waypoint id."
 
         robot_state = self._robot_state_client.get_robot_state()
         current_odom_tform_body = get_odom_tform_body(
@@ -340,6 +354,7 @@ class SpotGraphNav:
             fiducial_init=graph_nav_pb2.SetLocalizationRequest.FIDUCIAL_INIT_NO_FIDUCIAL,
             ko_tform_body=current_odom_tform_body,
         )
+        return True, "Success"
 
     def _download_current_graph(self):
         graph = self._graph_nav_client.download_graph()
