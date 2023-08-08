@@ -142,3 +142,4 @@ class RobotCommandData:
     # Was the last trajectory command requested to be precise
     last_trajectory_command_precise: typing.Optional[bool] = None
     last_velocity_command_time: typing.Optional[float] = None
+    last_navigate_to_command: typing.Optional[int] = None
